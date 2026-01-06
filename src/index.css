@@ -1,0 +1,167 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    /* Industrial Dark Theme */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 100%;
+    --card-elevated: 0 0% 16%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 207 79% 51%;
+    --primary-foreground: 0 0% 100%;
+    --primary-dark: 214 85% 34%;
+    --primary-light: 207 89% 77%;
+
+    --secondary: 200 18% 26%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 16%;
+    --muted-foreground: 200 15% 73%;
+
+    --accent: 207 79% 51%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 200 18% 26%;
+    --input: 200 18% 26%;
+    --ring: 207 79% 51%;
+
+    --radius: 0.5rem;
+
+    /* Status Colors */
+    --status-running: 123 46% 34%;
+    --status-warning: 45 100% 51%;
+    --status-fault: 0 65% 51%;
+    --status-standby: 207 77% 46%;
+    --status-offline: 0 0% 62%;
+
+    /* Chart Colors */
+    --chart-primary: 207 90% 61%;
+    --chart-secondary: 27 97% 54%;
+    --chart-limit: 0 74% 55%;
+    --chart-grid: 200 18% 33%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(207, 79%, 51%), hsl(214, 85%, 34%));
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 14%), hsl(0, 0%, 10%));
+    --gradient-glow: 0 0 30px hsl(207, 79%, 51% / 0.3);
+
+    /* Shadows */
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-glow-blue: 0 0 20px hsl(207, 79%, 51% / 0.3);
+    --shadow-glow-green: 0 0 15px hsl(123, 46%, 34% / 0.5);
+    --shadow-glow-red: 0 0 15px hsl(0, 65%, 51% / 0.5);
+    --shadow-glow-yellow: 0 0 15px hsl(45, 100%, 51% / 0.5);
+
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 207 79% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 200 18% 26%;
+    --sidebar-ring: 207 79% 51%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  .card-industrial {
+    @apply bg-card rounded-lg border border-border p-4;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-elevated {
+    background: hsl(var(--card-elevated));
+    @apply rounded-lg border border-border p-4;
+  }
+
+  .glow-blue {
+    box-shadow: var(--shadow-glow-blue);
+  }
+
+  .glow-green {
+    box-shadow: var(--shadow-glow-green);
+  }
+
+  .glow-red {
+    box-shadow: var(--shadow-glow-red);
+  }
+
+  .glow-yellow {
+    box-shadow: var(--shadow-glow-yellow);
+  }
+
+  .status-indicator {
+    @apply w-3 h-3 rounded-full animate-pulse;
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 10px hsl(207, 79%, 51% / 0.3);
+    }
+    to {
+      box-shadow: 0 0 25px hsl(207, 79%, 51% / 0.6);
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.4s ease-out forwards;
+  }
+}

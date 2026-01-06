@@ -1,0 +1,52 @@
+import { Activity, Settings } from 'lucide-react';
+import { MachineSelector } from './MachineSelector';
+import { StatusBadge } from './StatusBadge';
+import { MachineStatus } from '@/lib/mockData';
+
+interface HeaderProps {
+  selectedMachine: string;
+  machineStatus: MachineStatus;
+  machineName: string;
+  onMachineChange: (machineId: string) => void;
+}
+
+export const Header = ({ selectedMachine, machineStatus, machineName, onMachineChange }: HeaderProps) => {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-primary/10 glow-blue">
+            <img
+              src="/fi.jpg"
+              alt="PMS Logo"
+              className="h-6 w-6 object-contain"
+            />
+          </div>
+
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-semibold tracking-tight">PMS</h1>
+              <p className="text-xs text-muted-foreground">Plant Monitoring System</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <MachineSelector 
+            selectedMachine={selectedMachine} 
+            onMachineChange={onMachineChange} 
+          />
+          
+          <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-lg bg-muted/50 border border-border">
+            <span className="text-sm text-muted-foreground">{machineName}</span>
+            <StatusBadge status={machineStatus} />
+          </div>
+
+          <button className="p-2 rounded-lg hover:bg-muted transition-colors">
+            <Settings className="h-5 w-5 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+};

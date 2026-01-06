@@ -1,0 +1,25 @@
+<svg width="400" height="220" viewBox="0 0 400 220"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#1E1E1E"/>
+
+  <!-- Border -->
+  <rect x="2" y="2" width="396" height="216"
+        fill="none" stroke="#37474F" stroke-width="2"/>
+
+  <!-- Gear Icon -->
+  <circle cx="200" cy="90" r="28" fill="#263238" stroke="#64B5F6" stroke-width="2"/>
+  <circle cx="200" cy="90" r="10" fill="#64B5F6"/>
+
+  <!-- Gear teeth -->
+  <rect x="198" y="50" width="4" height="12" fill="#64B5F6"/>
+  <rect x="198" y="118" width="4" height="12" fill="#64B5F6"/>
+  <rect x="160" y="88" width="12" height="4" fill="#64B5F6"/>
+  <rect x="228" y="88" width="12" height="4" fill="#64B5F6"/>
+
+  <!-- Text -->
+  <text x="200" y="155"
+        text-anchor="middle"
+        fill="#B0BEC5"
+        f
