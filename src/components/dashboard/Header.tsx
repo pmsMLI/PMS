@@ -1,7 +1,11 @@
-import { Activity, Settings } from 'lucide-react';
+// import { Activity, Settings } from 'lucide-react';
+import { Activity, LogOut } from 'lucide-react';
+
 import { MachineSelector } from './MachineSelector';
 import { StatusBadge } from './StatusBadge';
 import { MachineStatus } from '@/lib/mockData';
+import { supabase } from "@/lib/supabase";
+
 
 interface HeaderProps {
   selectedMachine: string;
@@ -42,9 +46,18 @@ export const Header = ({ selectedMachine, machineStatus, machineName, onMachineC
             <StatusBadge status={machineStatus} />
           </div>
 
-          <button className="p-2 rounded-lg hover:bg-muted transition-colors">
-            <Settings className="h-5 w-5 text-muted-foreground" />
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.href = "/login";
+            }}
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            title="Logout"
+          >
+            <LogOut className="h-5 w-5 text-muted-foreground" />
           </button>
+
+
         </div>
       </div>
     </header>
