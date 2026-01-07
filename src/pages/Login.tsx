@@ -27,32 +27,43 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* LEFT SIDE */}
-      <div className="w-1/2 bg-[#1E3A8A] flex flex-col items-center justify-center text-white">
-        <h1 className="text-6xl font-bold tracking-wide"> P M S</h1>
-        <p className="mt-4 text-xl opacity-90">
-          Plant Monitoring System
-        </p>
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* BRAND PANEL */}
+      <div className="flex items-center justify-center
+        h-1/3 lg:h-auto
+        lg:w-1/2
+        bg-gradient-to-br from-[#1E3A8A] to-[#1D4ED8]
+        text-white
+      ">
+        <div className="text-center px-6">
+          <h1 className="text-5xl sm:text-6xl font-bold tracking-wide">
+            PMS
+          </h1>
+          <p className="mt-3 text-lg sm:text-xl opacity-90">
+            Plant Monitoring System
+          </p>
+        </div>
       </div>
 
-      {/* RIGHT SIDE */}
-      <div className="w-1/2 flex items-center justify-center bg-background">
+      {/* LOGIN PANEL */}
+      <div className="flex flex-1 items-center justify-center px-6 sm:px-10 bg-background">
         <form
           onSubmit={handleLogin}
           className="w-full max-w-sm space-y-5"
         >
           <div className="text-center">
-            <h2 className="text-2xl font-semibold">Welcome to PMS</h2>
+            <h2 className="text-2xl sm:text-3xl font-semibold">
+              Welcome to PMS
+            </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Please sign in to continue
+              Sign in to continue
             </p>
           </div>
 
           <input
             type="email"
-            placeholder="Username / Email"
-            className="w-full px-4 py-3 border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Email"
+            className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -61,20 +72,22 @@ export default function Login() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full px-4 py-3 border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
           {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
+            <p className="text-sm text-red-500 text-center">
+              {error}
+            </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-md bg-primary text-white font-medium hover:opacity-90 transition disabled:opacity-50"
+            className="w-full py-3 rounded-md bg-primary text-white font-medium transition hover:opacity-90 disabled:opacity-50"
           >
             {loading ? 'Signing in…' : 'Login'}
           </button>
