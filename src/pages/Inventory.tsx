@@ -19,7 +19,8 @@ import {
   TrendingUp,
   Filter,
   Layers,
-  CheckCircle2
+  Sun,
+  Moon
 } from "lucide-react";
 
 /* ---------- TYPES ---------- */
@@ -38,10 +39,20 @@ export default function Inventory() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /* ---------- THEME STATE ---------- */
+  // Initialize based on localStorage or system preference
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("theme") === "dark" || 
+        (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    }
+    return false;
+  });
+
   /* ---------- FILTERS ---------- */
   const [category, setCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showLowStockOnly, setShowLowStockOnly] = useState(false); // New Filter State
+  const [showLowStockOnly, setShowLowStockOnly] = useState(false); 
 
   /* ---------- MODALS & EDIT STATE ---------- */
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -61,6 +72,20 @@ export default function Inventory() {
 
   /* ---------- SELL INPUT STATE ---------- */
   const [sellQty, setSellQty] = useState<Record<string, number>>({});
+
+  /* ---------- THEME EFFECT ---------- */
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDarkMode) {
+        root.classList.add('dark');
+        localStorage.setItem("theme", "dark");
+    } else {
+        root.classList.remove('dark');
+        localStorage.setItem("theme", "light");
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   /* ---------- FETCH ---------- */
   const fetchProducts = async () => {
@@ -102,15 +127,10 @@ export default function Inventory() {
   const filteredProducts = useMemo(() => {
     let res = products;
 
-    // 1. Filter by Low Stock Toggle
     if (showLowStockOnly) {
         res = res.filter(p => p.quantity < 10);
     }
-
-    // 2. Filter by Category
     if (category !== "All") res = res.filter((p) => p.name === category);
-
-    // 3. Filter by Search
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       res = res.filter(
@@ -215,17 +235,17 @@ export default function Inventory() {
 
   /* ---------- UI ---------- */
   return (
-    <div className="min-h-screen bg-[#F3F4F6] font-sans text-slate-900 pb-20">
+    <div className="min-h-screen bg-[#F3F4F6] dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-20 transition-colors duration-300">
       
       {/* --- TOP HEADER BAR --- */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-30 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-30 shadow-sm transition-colors duration-300">
          <div className="flex items-center gap-3">
-             <div className="h-10 w-10 rounded-lg overflow-hidden border border-slate-200">
+             <div className="h-10 w-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
                 <img src="/llogo.jpg" alt="Logo" className="w-full h-full object-cover" />
              </div>
              <div>
-                <h1 className="text-xl font-bold text-slate-800 leading-tight">Inventory</h1>
-                <p className="text-xs text-slate-500">Manage your products and stock levels</p>
+                <h1 className="text-xl font-bold text-slate-800 dark:text-white leading-tight">Inventory</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Manage your products and stock levels</p>
              </div>
          </div>
 
@@ -237,7 +257,7 @@ export default function Inventory() {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-100 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all outline-none"
+                    className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none"
                 />
             </div>
             
@@ -246,7 +266,7 @@ export default function Inventory() {
                 <select 
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="appearance-none bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 pl-4 pr-10 rounded-xl text-sm cursor-pointer outline-none focus:ring-2 focus:ring-blue-100 transition-colors"
+                    className="appearance-none bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium py-2.5 pl-4 pr-10 rounded-xl text-sm cursor-pointer outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 transition-colors"
                 >
                     <option value="All">All Categories</option>
                     {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -254,9 +274,18 @@ export default function Inventory() {
                 <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={14} />
             </div>
 
-             <a href="/" className="p-2.5 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors">
+            {/* Dark Mode Toggle */}
+            <button 
+                onClick={toggleTheme}
+                className="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+                title="Toggle Theme"
+            >
+                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
+            <a href="/" className="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
                 <ArrowLeft size={20} />
-             </a>
+            </a>
          </div>
       </div>
 
@@ -265,24 +294,24 @@ export default function Inventory() {
         {/* --- STATS ROW --- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors">
                 <div>
-                    <p className="text-slate-500 text-sm font-medium">Total Products</p>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.totalProducts}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Products</p>
+                    <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-1">{stats.totalProducts}</h3>
                     <p className="text-xs text-slate-400 mt-1">Unique items</p>
                 </div>
-                <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                <div className="h-12 w-12 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center">
                     <Package size={24} />
                 </div>
             </div>
 
-             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors">
                 <div>
-                    <p className="text-slate-500 text-sm font-medium">Total Stock</p>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.totalStock.toLocaleString()}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Stock</p>
+                    <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-1">{stats.totalStock.toLocaleString()}</h3>
                     <p className="text-xs text-slate-400 mt-1">Units available</p>
                 </div>
-                <div className="h-12 w-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                <div className="h-12 w-12 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center">
                     <Layers size={24} />
                 </div>
             </div>
@@ -292,43 +321,43 @@ export default function Inventory() {
                 onClick={() => setShowLowStockOnly(!showLowStockOnly)}
                 className={`p-5 rounded-2xl border shadow-sm flex items-center justify-between cursor-pointer transition-all active:scale-95 ${
                     showLowStockOnly 
-                    ? "bg-red-50 border-red-200 ring-2 ring-red-200" 
-                    : "bg-white border-slate-100 hover:border-red-200"
+                    ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 ring-2 ring-red-200 dark:ring-red-900" 
+                    : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-red-200 dark:hover:border-red-900"
                 }`}
              >
                 <div>
-                    <p className={`${showLowStockOnly ? "text-red-700" : "text-slate-500"} text-sm font-medium`}>
+                    <p className={`${showLowStockOnly ? "text-red-700 dark:text-red-400" : "text-slate-500 dark:text-slate-400"} text-sm font-medium`}>
                         {showLowStockOnly ? "Filtering Low Stock" : "Low Stock"}
                     </p>
-                    <h3 className={`text-2xl font-bold mt-1 ${showLowStockOnly ? "text-red-800" : "text-slate-800"}`}>
+                    <h3 className={`text-2xl font-bold mt-1 ${showLowStockOnly ? "text-red-800 dark:text-red-300" : "text-slate-800 dark:text-white"}`}>
                         {stats.lowStock}
                     </h3>
-                    <p className={`${showLowStockOnly ? "text-red-600" : "text-slate-400"} text-xs mt-1`}>
+                    <p className={`${showLowStockOnly ? "text-red-600 dark:text-red-400" : "text-slate-400"} text-xs mt-1`}>
                         {showLowStockOnly ? "Tap to show all" : "Items need attention"}
                     </p>
                 </div>
-                <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${showLowStockOnly ? "bg-white text-red-600" : "bg-red-50 text-red-500"}`}>
+                <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${showLowStockOnly ? "bg-white dark:bg-red-900/50 text-red-600" : "bg-red-50 dark:bg-red-900/20 text-red-500"}`}>
                     <AlertTriangle size={24} />
                 </div>
             </div>
 
-             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors">
                 <div>
-                    <p className="text-slate-500 text-sm font-medium">Inventory Value</p>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-1">₹{stats.totalValue.toLocaleString()}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Inventory Value</p>
+                    <h3 className="text-2xl font-bold text-slate-800 dark:text-white mt-1">₹{stats.totalValue.toLocaleString()}</h3>
                     <p className="text-xs text-slate-400 mt-1">Total worth</p>
                 </div>
-                <div className="h-12 w-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                <div className="h-12 w-12 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center">
                     <TrendingUp size={24} />
                 </div>
             </div>
         </div>
 
         {/* --- ADD PRODUCT SECTION (BLUE THEME) --- */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
             {/* Header Bar */}
             <div 
-                className="bg-blue-600 px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-blue-700 transition-colors"
+                className="bg-blue-600 dark:bg-blue-700 px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                 onClick={() => {
                    if(editingId) resetForm();
                    setIsFormOpen(!isFormOpen);
@@ -362,8 +391,8 @@ export default function Inventory() {
                         <div className="lg:col-span-3">
                             <label className={`
                                 flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed 
-                                transition-all cursor-pointer overflow-hidden bg-slate-50 hover:bg-slate-100 hover:border-blue-400
-                                ${imagePreviewUrl ? "border-blue-600" : "border-slate-300"}
+                                transition-all cursor-pointer overflow-hidden bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-blue-400
+                                ${imagePreviewUrl ? "border-blue-600" : "border-slate-300 dark:border-slate-600"}
                             `}>
                                 {imagePreviewUrl ? (
                                     <div className="relative w-full h-full group">
@@ -386,21 +415,21 @@ export default function Inventory() {
                         <div className="lg:col-span-9 flex flex-col justify-between">
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-500">Product Code *</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Product Code *</label>
                                     <input
                                         value={form.product_code}
                                         onChange={(e) => setForm({ ...form, product_code: e.target.value })}
-                                        className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-600 outline-none transition-all"
                                         placeholder="Code"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-500">Category *</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Category *</label>
                                     <input
                                         list="cat-list"
                                         value={form.name}
                                         onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                        className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-600 outline-none transition-all"
                                         placeholder="Category"
                                     />
                                     <datalist id="cat-list">
@@ -408,12 +437,12 @@ export default function Inventory() {
                                     </datalist>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-500">Size (opt)</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Size (opt)</label>
                                     <input
                                         list="size-list"
                                         value={form.size}
                                         onChange={(e) => setForm({ ...form, size: e.target.value })}
-                                        className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-600 outline-none transition-all"
                                         placeholder="Size"
                                     />
                                     <datalist id="size-list">
@@ -421,22 +450,22 @@ export default function Inventory() {
                                     </datalist>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-500">Quantity</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Quantity</label>
                                     <input
                                         type="number"
                                         value={form.quantity}
                                         onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                                        className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-600 outline-none transition-all"
                                         placeholder="0"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-500">Cost (₹)</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Cost (₹)</label>
                                     <input
                                         type="number"
                                         value={form.cost}
                                         onChange={(e) => setForm({ ...form, cost: e.target.value })}
-                                        className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none transition-all"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-600 outline-none transition-all"
                                         placeholder="0.00"
                                     />
                                 </div>
@@ -446,7 +475,7 @@ export default function Inventory() {
                                 {editingId && (
                                     <button 
                                         onClick={resetForm}
-                                        className="px-5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                        className="px-5 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                                     >
                                         Cancel
                                     </button>
@@ -454,7 +483,7 @@ export default function Inventory() {
                                 <button
                                     onClick={handleSubmit}
                                     disabled={isSubmitting}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-sm shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-70"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-sm shadow-blue-200 dark:shadow-none transition-all flex items-center gap-2 disabled:opacity-70"
                                 >
                                     {isSubmitting ? <Loader2 className="animate-spin" size={16}/> : editingId ? <Save size={16} /> : <Plus size={16} />}
                                     {editingId ? "Update Product" : "Add Product"}
@@ -468,10 +497,10 @@ export default function Inventory() {
         </div>
 
         {/* --- PRODUCTS TITLE --- */}
-        <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-             <div className="flex items-center gap-2 text-slate-500">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                 <LayoutGrid size={18} />
-                <h3 className="font-semibold text-lg text-slate-700">Products ({filteredProducts.length})</h3>
+                <h3 className="font-semibold text-lg text-slate-700 dark:text-slate-200">Products ({filteredProducts.length})</h3>
              </div>
              {showLowStockOnly && (
                  <button onClick={() => setShowLowStockOnly(false)} className="text-xs text-red-500 flex items-center gap-1 hover:underline">
@@ -486,12 +515,12 @@ export default function Inventory() {
                 <Loader2 className="animate-spin mr-2" /> Loading inventory...
             </div>
         ) : filteredProducts.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
-                <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 transition-colors">
+                <div className="bg-slate-50 dark:bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Package className="text-slate-400" size={32}/>
                 </div>
-                <h3 className="text-slate-900 font-medium text-lg">No products found</h3>
-                {showLowStockOnly && <p className="text-slate-500 text-sm mt-1">Great job! No items are low in stock.</p>}
+                <h3 className="text-slate-900 dark:text-white font-medium text-lg">No products found</h3>
+                {showLowStockOnly && <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Great job! No items are low in stock.</p>}
             </div>
         ) : (
           <motion.div 
@@ -508,21 +537,21 @@ export default function Inventory() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   key={p.id}
-                  className={`bg-white rounded-2xl border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col ${isLowStock ? "border-red-200 shadow-red-50" : "border-slate-200"}`}
+                  className={`bg-white dark:bg-slate-900 rounded-2xl border overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col ${isLowStock ? "border-red-200 dark:border-red-900 shadow-red-50 dark:shadow-none" : "border-slate-200 dark:border-slate-800"}`}
                 >
                   {/* IMAGE AREA */}
-                  <div className="relative h-48 overflow-hidden bg-slate-100 shrink-0">
+                  <div className="relative h-48 overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
                      {/* Floating Action Buttons (Hover) */}
                      <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleEdit(p)} className="bg-white/90 p-2 rounded-full text-slate-600 hover:text-blue-600 shadow-sm"><Pencil size={14}/></button>
-                        <button onClick={() => handleDelete(p.id)} className="bg-white/90 p-2 rounded-full text-slate-600 hover:text-red-600 shadow-sm"><Trash2 size={14}/></button>
+                        <button onClick={() => handleEdit(p)} className="bg-white/90 dark:bg-slate-800/90 p-2 rounded-full text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 shadow-sm"><Pencil size={14}/></button>
+                        <button onClick={() => handleDelete(p.id)} className="bg-white/90 dark:bg-slate-800/90 p-2 rounded-full text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 shadow-sm"><Trash2 size={14}/></button>
                      </div>
 
                      <div onClick={() => setPreviewImage(p.image_url || null)} className="w-full h-full cursor-pointer">
                         {p.image_url ? (
                             <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-300"><ImageIcon size={40} /></div>
+                            <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600"><ImageIcon size={40} /></div>
                         )}
                      </div>
 
@@ -533,7 +562,7 @@ export default function Inventory() {
                                 <AlertTriangle size={10} /> Low Stock
                             </span>
                          )}
-                         <span className="bg-white/90 backdrop-blur text-slate-700 text-[10px] font-bold px-2 py-1 rounded-md">
+                         <span className="bg-white/90 dark:bg-slate-900/90 backdrop-blur text-slate-700 dark:text-slate-200 text-[10px] font-bold px-2 py-1 rounded-md">
                             {p.quantity} in stock
                          </span>
                      </div>
@@ -542,17 +571,17 @@ export default function Inventory() {
                   {/* CONTENT */}
                   <div className="p-4 flex flex-col flex-1">
                       <div className="flex justify-between items-start mb-1">
-                          <h3 className="font-bold text-slate-800 line-clamp-1">{p.name}</h3>
-                          <span className="text-xs font-medium bg-slate-100 px-2 py-1 rounded text-slate-600">{p.size}</span>
+                          <h3 className="font-bold text-slate-800 dark:text-white line-clamp-1">{p.name}</h3>
+                          <span className="text-xs font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-400">{p.size}</span>
                       </div>
                       <p className="text-xs text-slate-400 font-medium mb-3">{p.product_code}</p>
                       
-                      <div className="mt-auto pt-3 border-t border-slate-100">
+                      <div className="mt-auto pt-3 border-t border-slate-100 dark:border-slate-800">
                           <div className="flex justify-between items-center mb-3">
-                             <span className="text-sm font-semibold text-slate-900">₹{p.cost}</span>
+                             <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">₹{p.cost}</span>
                           </div>
 
-                          {/* BIGGER SELL BUTTONS & INPUT */}
+                          {/* SELL BUTTONS & INPUT */}
                           <div className="flex gap-2">
                              <input 
                                 type="number" 
@@ -560,12 +589,12 @@ export default function Inventory() {
                                 placeholder="Qty"
                                 value={sellQty[p.id] || ""}
                                 onChange={(e) => setSellQty({ ...sellQty, [p.id]: Number(e.target.value) })}
-                                className="w-20 text-center text-sm font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-lg py-2 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all placeholder:text-slate-400"
+                                className="w-20 text-center text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-500 transition-all placeholder:text-slate-400"
                              />
                              <button 
                                 onClick={() => sellItems(p)}
                                 disabled={!sellQty[p.id]}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-medium text-sm rounded-lg py-2 transition-colors flex items-center justify-center gap-2"
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white font-medium text-sm rounded-lg py-2 transition-colors flex items-center justify-center gap-2"
                              >
                                 <ShoppingBag size={16} /> Sell
                              </button>
